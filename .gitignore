@@ -1,0 +1,10 @@
+# led / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE related files
+.vscode
+
+# Migrations files
+migrations
