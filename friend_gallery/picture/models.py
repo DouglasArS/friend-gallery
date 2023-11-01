@@ -13,7 +13,7 @@ class Picture(models.Model):
     format = models.CharField(max_length=255, null=False, blank=False)
     data = models.ImageField(default=None)
     bytes = models.BinaryField(null=False, blank=False)
-    privacy = models.CharField(max_length=7, choices=PRIVACY_CHOICES, default="public")
+    privacy = models.CharField(max_length=7, choices=PRIVACY_CHOICES, default="private")
     gallery = models.ForeignKey(
         Gallery, on_delete=models.CASCADE, related_name="pictures"
     )

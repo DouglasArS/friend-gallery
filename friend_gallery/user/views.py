@@ -5,6 +5,7 @@ from django.shortcuts import render
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, viewsets
 from rest_framework.response import Response
+from werkzeug.security import generate_password_hash
 
 from .models import User
 from .serializers import UserResponseSerializer, UserSerializer
@@ -58,7 +59,13 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = UserSerializer(data=request.data)
 
         if serializer.is_valid():
-            serializer.save()
+            data = serializer.data
+            user = User(
+                username=data.get("username"),
+                email=data.get("email"),
+                password=generate_password_hash(password=data.get("password")),
+            )
+            user.save()
             return Response({"message": "user_created"}, status=status.HTTP_201_CREATED)
 
         return Response(

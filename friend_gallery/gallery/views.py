@@ -1,3 +1,4 @@
+from authorization.token_verification import token_required
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, viewsets
 from rest_framework.response import Response
@@ -23,8 +24,8 @@ class GalleryViewSet(viewsets.ModelViewSet):
         return serializer
 
     @swagger_auto_schema(
-        operation_summary="List registered galleries",
-        operation_description="List registered galleries",
+        operation_summary="List registered galleries ",
+        operation_description="List registered galleries ",
         responses={
             200: "user_list",
             204: "empty_list",
@@ -59,19 +60,13 @@ class GalleryViewSet(viewsets.ModelViewSet):
             404: "user_not_found",
         },
     )
-    def create(self, request, user_id):
-        try:
-            owner = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return Response(
-                {"message": "user_not_found"}, status=status.HTTP_404_NOT_FOUND
-            )
-
+    @token_required(load_user=True)
+    def create(self, request, logged_user):
         serializer = GallerySerializer(data=request.data)
 
         if serializer.is_valid():
             gallery = serializer.save()
-            gallery.owners.add(owner)
+            gallery.owners.add(logged_user)
             return Response(
                 {"message": "gallery_created"}, status=status.HTTP_201_CREATED
             )
@@ -110,12 +105,19 @@ class GalleryViewSet(viewsets.ModelViewSet):
             404: "gallery_not_found",
         },
     )
-    def update(self, request, id=None):
+    @token_required(load_user=True)
+    def update(self, request, logged_user, id=None):
         try:
             gallery = Gallery.objects.get(id=id)
         except:
             return Response(
                 {"message": "gallery_not_found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        if logged_user not in list(gallery.owners.all()):
+            return Response(
+                {"message": "user_unauthorized"},
+                status=status.HTTP_401_UNAUTHORIZED,
             )
 
         serializer = GallerySerializer(gallery, data=request.data)
@@ -136,12 +138,19 @@ class GalleryViewSet(viewsets.ModelViewSet):
             404: "gallery_not_found",
         },
     )
-    def destroy(self, request, id=None):
+    @token_required(load_user=True)
+    def destroy(self, request, logged_user, id=None):
         try:
             gallery = Gallery.objects.get(pk=id)
         except:
             return Response(
                 {"message": "gallery_not_found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        if logged_user not in list(gallery.owners.all()):
+            return Response(
+                {"message": "user_unauthorized"},
+                status=status.HTTP_401_UNAUTHORIZED,
             )
 
         gallery.delete()
