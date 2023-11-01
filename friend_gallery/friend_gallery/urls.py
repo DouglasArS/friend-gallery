@@ -38,4 +38,5 @@ urlpatterns = [
     path("authorization/", include("authorization.urls"), name="authorization_urls"),
     path("gallery/", include("gallery.urls"), name="gallery_urls"),
     path("picture/", include("picture.urls"), name="picture_urls"),
+    path("picture/", include("like.urls"), name="like_urls"),
 ]
