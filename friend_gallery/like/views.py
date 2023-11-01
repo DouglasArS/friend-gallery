@@ -1,11 +1,10 @@
 from authorization.token_verification import token_required
-from django.http import HttpResponse, JsonResponse
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Like, Picture, User
+from .models import Like, Picture
 
 
 class LikeViewSet(viewsets.ViewSet):
@@ -32,7 +31,8 @@ class LikeViewSet(viewsets.ViewSet):
         return Response({"like_count": like_count}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
-        operation_description="Like a new picture",
+        operation_summary="Like a picture",
+        operation_description="Like a picture",
         responses={
             200: "picture_uploaded",
             404: "user_not_found\npicture_not_found",
@@ -64,6 +64,7 @@ class LikeViewSet(viewsets.ViewSet):
         return Response({"message": "picture_liked"}, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
+        operation_summary="Remove like of picture",
         operation_description="Remove like of picture",
         responses={
             200: "like_deleted",

@@ -9,7 +9,7 @@ class UserResponseSerializer(serializers.ModelSerializer):
         fields = ("id", "username", "email", "created_at")
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("username", "email", "password")
@@ -27,3 +27,13 @@ class UserSerializer(serializers.ModelSerializer):
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("email_in_use")
         return value
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("username", "email", "password")
+
+    username = serializers.CharField(required=True, min_length=1, max_length=150)
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(required=True, min_length=8, max_length=255)

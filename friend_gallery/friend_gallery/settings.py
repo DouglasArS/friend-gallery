@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "gallery",
     "picture",
     "like",
+    "comment",
 ]
 
 MIDDLEWARE = [

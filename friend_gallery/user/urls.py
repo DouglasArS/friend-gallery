@@ -1,12 +1,17 @@
 from django.urls import path
 
-from .views import UserViewSet
+from .views import UserFileViewSet, UserViewSet
 
 urlpatterns = [
     path(
         "",
         UserViewSet.as_view({"get": "list", "post": "create"}),
         name="user-list",
+    ),
+    path(
+        "file",
+        UserFileViewSet.as_view({"post": "load"}),
+        name="user-file",
     ),
     path(
         "<int:id>",

@@ -39,4 +39,5 @@ urlpatterns = [
     path("gallery/", include("gallery.urls"), name="gallery_urls"),
     path("picture/", include("picture.urls"), name="picture_urls"),
     path("picture/", include("like.urls"), name="like_urls"),
+    path("picture/", include("comment.urls"), name="comment_urls"),
 ]

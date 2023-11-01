@@ -4,8 +4,13 @@ from .views import GalleryViewSet
 
 urlpatterns = [
     path(
+        "",
+        GalleryViewSet.as_view({"post": "create"}),
+        name="gallery-list",
+    ),
+    path(
         "user/<int:user_id>",
-        GalleryViewSet.as_view({"get": "list", "post": "create"}),
+        GalleryViewSet.as_view({"get": "list"}),
         name="gallery-list",
     ),
     path(
