@@ -36,4 +36,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("user/", include("user.urls"), name="user_urls"),
     path("gallery/", include("gallery.urls"), name="gallery_urls"),
+    path("picture/", include("picture.urls"), name="picture_urls"),
 ]
