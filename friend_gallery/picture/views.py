@@ -1,3 +1,4 @@
+from authorization.token_verification import token_required
 from django.http import FileResponse, HttpResponse, JsonResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -36,7 +37,8 @@ class PictureViewSet(viewsets.ModelViewSet):
             404: "gallery_not_found",
         },
     )
-    def list(self, request, gallery_id):
+    @token_required(load_user=True)
+    def list(self, request, logged_user, gallery_id):
         try:
             gallery = Gallery.objects.get(id=gallery_id)
         except:
@@ -44,7 +46,12 @@ class PictureViewSet(viewsets.ModelViewSet):
                 {"message": "gallery_not_found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        pictures = Picture.objects.filter(gallery=gallery)
+        pictures = None
+        if logged_user not in list(gallery.owners.all()):
+            pictures = Picture.objects.filter(gallery=gallery, privacy="public")
+        else:
+            pictures = Picture.objects.filter(gallery=gallery)
+
         pictures_data = PictureResponseSerializer(pictures, many=True).data
 
         if pictures_data:
@@ -96,7 +103,6 @@ class PictureViewSet(viewsets.ModelViewSet):
                 name=data[0],
                 format=data[1],
                 bytes=request.FILES.get("data").read(),
-                privacy=request.POST.get("privacy"),
             )
             picture.save()
             return Response(
@@ -116,7 +122,7 @@ class PictureViewSet(viewsets.ModelViewSet):
             404: "picture_not_found",
         },
     )
-    def retrieve(self, request, id=None):
+    def retrieve(self, request, logged_user, id=None):
         try:
             picture = Picture.objects.get(id=id)
         except:
@@ -127,18 +133,26 @@ class PictureViewSet(viewsets.ModelViewSet):
         return HttpResponse(picture.bytes, content_type=f"image/{picture.format}")
 
     @swagger_auto_schema(
+        operation_summary="Delete a picture",
         operation_description="Delete a picture",
         responses={
             200: "picture_deleted",
             404: "picture_not_found",
         },
     )
-    def destroy(self, request, id=None):
+    @token_required(load_user=True)
+    def destroy(self, request, logged_user, id=None):
         try:
             picture = Picture.objects.get(pk=id)
         except:
             return Response(
                 {"message": "picture_not_found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        if logged_user not in list(picture.gallery.owners.all()):
+            return Response(
+                {"message": "user_unauthorized"},
+                status=status.HTTP_401_UNAUTHORIZED,
             )
 
         picture.delete()

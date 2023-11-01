@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_yasg",
     "user",
+    "authorization",
     "gallery",
     "picture",
 ]
@@ -112,6 +114,22 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+JWT_EXP = 8  # Hours
+
+# Swagger
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Token": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Add 'Bearer' to the beginning of the token separating by one space",
+        },
+    },
+    "USE_SESSION_AUTH": False,  # Desativar a autenticação baseada em sessão
+    "JSON_EDITOR": True,  # Ativar o editor JSON no Swagger
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
