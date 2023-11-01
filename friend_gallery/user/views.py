@@ -27,6 +27,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return serializer
 
     @swagger_auto_schema(
+        operation_summary="List registered users",
         operation_description="List registered users",
         responses={
             200: "user_list",
@@ -45,6 +46,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(users_data, status=status_code)
 
     @swagger_auto_schema(
+        operation_summary="Create new user",
         operation_description="Create new user",
         request_body=UserSerializer,
         responses={
@@ -65,6 +67,7 @@ class UserViewSet(viewsets.ModelViewSet):
         )
 
     @swagger_auto_schema(
+        operation_summary="Get user by id",
         operation_description="Get user by id",
         responses={
             200: "user_info",
@@ -83,7 +86,8 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
-        operation_description="Create new user",
+        operation_summary="Update a user",
+        operation_description="Update a user",
         request_body=UserSerializer,
         responses={
             200: "user_updated",
