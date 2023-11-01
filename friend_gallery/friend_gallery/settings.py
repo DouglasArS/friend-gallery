@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "authorization",
     "gallery",
     "picture",
+    "like",
 ]
 
 MIDDLEWARE = [

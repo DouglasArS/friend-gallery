@@ -4,7 +4,7 @@ from .views import AuthorizationViewSet
 
 urlpatterns = [
     path(
-        "",
+        "login",
         AuthorizationViewSet.as_view({"post": "login"}),
         name="login",
     ),
