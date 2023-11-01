@@ -5,7 +5,13 @@ from .views import PictureViewSet
 urlpatterns = [
     path(
         "<int:id>",
-        PictureViewSet.as_view({"get": "retrieve", "delete": "destroy"}),
+        PictureViewSet.as_view(
+            {
+                "get": "retrieve",
+                "patch": "change_privacy",
+                "delete": "destroy",
+            }
+        ),
         name="picture_by_id",
     ),
     path(

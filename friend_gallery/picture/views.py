@@ -1,14 +1,18 @@
 from authorization.token_verification import token_required
-from django.http import FileResponse, HttpResponse, JsonResponse
+from django.http import HttpResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import parsers, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
 from .models import Gallery, Picture
-from .serializers import PictureResponseSerializer, PictureSerializer
+from .serializers import (
+    PicturePatchSerializer,
+    PictureResponseSerializer,
+    PictureSerializer,
+)
 
 
 class PictureViewSet(viewsets.ModelViewSet):
@@ -19,6 +23,7 @@ class PictureViewSet(viewsets.ModelViewSet):
         "create": PictureSerializer,
         "retrieve": PictureResponseSerializer,
         "update": PictureSerializer,
+        "change_privacy": PicturePatchSerializer,
     }
     parser_classes = [MultiPartParser]
 
@@ -72,13 +77,6 @@ class PictureViewSet(viewsets.ModelViewSet):
                 required=True,
                 description="The picture file to upload",
             ),
-            openapi.Parameter(
-                name="privacy",
-                in_=openapi.IN_FORM,
-                type=openapi.TYPE_STRING,
-                required=True,
-                description="Privacy setting for the picture",
-            ),
         ],
         responses={
             201: "Picture uploaded successfully",
@@ -122,7 +120,7 @@ class PictureViewSet(viewsets.ModelViewSet):
             404: "picture_not_found",
         },
     )
-    def retrieve(self, request, logged_user, id=None):
+    def retrieve(self, request, id=None):
         try:
             picture = Picture.objects.get(id=id)
         except:
@@ -157,3 +155,42 @@ class PictureViewSet(viewsets.ModelViewSet):
 
         picture.delete()
         return Response({"message": "picture_deleted"}, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_summary="Change picture privacy",
+        operation_description="Delete a picture",
+        responses={
+            200: "picture_deleted",
+            404: "picture_not_found",
+        },
+    )
+    @token_required(load_user=True)
+    @action(detail=False, methods=["PATCH"])
+    def change_privacy(self, request, logged_user, id=None):
+        try:
+            picture = Picture.objects.get(pk=id)
+        except:
+            return Response(
+                {"message": "picture_not_found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        if logged_user not in list(picture.gallery.owners.all()):
+            return Response(
+                {"message": "user_unauthorized"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        serializer = PicturePatchSerializer(data=request.data)
+
+        if serializer.is_valid():
+            data = serializer.validated_data
+            picture.privacy = data.get("privacy")
+            picture.save()
+            return Response(
+                {"message": "picture_uploaded"}, status=status.HTTP_201_CREATED
+            )
+
+        return Response(
+            {"message": "validation_error_occurred"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )

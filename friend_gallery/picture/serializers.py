@@ -12,15 +12,14 @@ class PictureResponseSerializer(serializers.ModelSerializer):
 class PictureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Picture
-        fields = (
-            "data",
-            "privacy",
-        )
+        fields = ("data",)
 
     data = serializers.FileField(required=True)
-    privacy = serializers.ChoiceField(choices=Picture.PRIVACY_CHOICES, required=False)
 
-    def validate_privacy(self, value):
-        if value is not None and value not in dict(Picture.PRIVACY_CHOICES).keys():
-            raise serializers.ValidationError("invalid_privacy_value")
-        return value
+
+class PicturePatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Picture
+        fields = ("privacy",)
+
+    privacy = serializers.CharField(required=True)
